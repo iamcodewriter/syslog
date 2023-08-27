@@ -1,13 +1,22 @@
 // startup/syslog.js
 const dgram = require('dgram');
-const loggerMiddleware = require('../middleware/logger');
+const logger = require('./mongodb');
 const syslogServer = dgram.createSocket('udp4');
 
 syslogServer.on('message', (message, remote) => {
   const msg = message.toString('utf-8').trim();
-  loggerMiddleware(msg); // Log to console
+  const ipAddress = remote.address;
+  const logLevelMatch = msg.match(/\[(\w+)\]/);
+  const logLevel = logLevelMatch ? logLevelMatch[1] : 'UNKNOWN';
+  const logMessage = `[${ipAddress}] ${msg}`;
 
-  // Rest of syslog message processing logic here
+  console.log(logMessage); // Log to console
+  logger.info({
+    timestamp: new Date(),
+    ip: ipAddress,
+    level: logLevel,
+    message: msg
+  }); // Log to MongoDB using Winston
 });
 
 syslogServer.on('listening', () => {
