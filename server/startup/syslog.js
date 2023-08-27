@@ -1,4 +1,5 @@
 // startup/syslog.js
+const wlog=require('../middleware/logger')
 const dgram = require('dgram');
 const logger = require('./mongodb');
 const syslogServer = dgram.createSocket('udp4');
@@ -10,7 +11,7 @@ syslogServer.on('message', (message, remote) => {
   const logLevel = logLevelMatch ? logLevelMatch[1] : 'UNKNOWN';
   const logMessage = `[${ipAddress}] ${msg}`;
 
-  console.log(logMessage); // Log to console
+  wlog(ipAddress+":"+logLevel+":"+logMessage); // Log to console
   logger.info({
     timestamp: new Date(),
     ip: ipAddress,
@@ -21,7 +22,7 @@ syslogServer.on('message', (message, remote) => {
 
 syslogServer.on('listening', () => {
   const address = syslogServer.address();
-  console.log(`Syslog server is listening on ${address.address}:${address.port}`);
+  wlog(`Syslog server is listening on ${address.address}:${address.port}`);
 });
 
 syslogServer.bind(514, '0.0.0.0');
