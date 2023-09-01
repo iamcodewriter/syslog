@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logs Dashboard</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Logs Dashboard</h1>
+    <table class="table table-bordered mt-3">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>IP Address</th>
+          <th>Level</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody id="logsTableBody">
+        <!-- Log entries will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Fetch and populate logs in the table
+    fetch('/logs?limit=100')
+      .then(response => response.json())
+      .then(logs => {
+        const logsTableBody = document.getElementById('logsTableBody');
+        logs.forEach(log => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${new Date(log.timestamp).toLocaleString()}</td>
+            <td>${log.ip}</td>
+            <td>${log.level}</td>
+            <td>${log.message}</td>
+          `;
+          logsTableBody.appendChild(row);
+        });
+      })
+      .catch(error => console.error('Error fetching logs:', error));
+  </script>
+</body>
+</html>
